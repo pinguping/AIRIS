@@ -73,6 +73,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener, TextTo
     private var isTtsInitialized = false
     private var isTextToSpeechActive = false
     private var capturedText: String = ""
+    private var isTtsPlayFailDueToTextEmpty = false
 
     /** Blocking camera operations are performed using this executor */
     private lateinit var cameraExecutor: ExecutorService
@@ -256,6 +257,8 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener, TextTo
         if (capturedText.isNotBlank()) {
             // Speak the captured text
             tts.speak(capturedText, TextToSpeech.QUEUE_FLUSH, null, null)
+        } else {
+            isTtsPlayFailDueToTextEmpty = true
         }
     }
     // TTS -------- end
@@ -442,7 +445,8 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener, TextTo
     private fun detectObjects(image: ImageProxy) {
         // Copy out RGB bits to the shared bitmap buffer
         image.use { bitmapBuffer.copyPixelsFromBuffer(image.planes[0].buffer) }
-
+        recognizeText()
+        if (isTextToSpeechActive) return
         val imageRotation = image.imageInfo.rotationDegrees
         // Pass Bitmap and rotation to the object detector helper for processing and detection
         objectDetectorHelper.detect(bitmapBuffer, imageRotation)
@@ -455,6 +459,10 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener, TextTo
         result.addOnSuccessListener { text: Text ->
             // Process the recognized text
             capturedText = text.text
+            if (isTtsPlayFailDueToTextEmpty) {
+                isTtsPlayFailDueToTextEmpty = false
+                readTextFromCamera()
+            }
         }.addOnFailureListener { e: Exception? ->
             Log.e("ReadTextError", e.toString())
         }
