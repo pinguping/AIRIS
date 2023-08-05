@@ -17,12 +17,15 @@ package org.tensorflow.lite.examples.objectdetection.fragments
 
 //import org.tensorflow.lite.examples.objectdetection.BuildConfig
 
+// TTS
 import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.media.MediaPlayer
 import android.os.Bundle
+import android.speech.tts.TextToSpeech
 import android.util.Log
+import android.view.*
 import android.widget.AdapterView
 import android.widget.PopupMenu
 import android.widget.Toast
@@ -32,6 +35,11 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
+import com.google.android.gms.tasks.Task
+import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.text.Text
+import com.google.mlkit.vision.text.TextRecognition
+import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import org.tensorflow.lite.examples.objectdetection.BuildConfig
 import org.tensorflow.lite.examples.objectdetection.ObjectDetectorHelper
 import org.tensorflow.lite.examples.objectdetection.R
@@ -42,14 +50,6 @@ import java.io.InputStreamReader
 import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-// TTS
-import android.speech.tts.TextToSpeech
-import android.view.*
-import com.google.android.gms.tasks.Task
-import com.google.mlkit.vision.common.InputImage
-import com.google.mlkit.vision.text.Text
-import com.google.mlkit.vision.text.TextRecognition
-import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 
 
 class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener, TextToSpeech.OnInitListener {
@@ -96,7 +96,10 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener, TextTo
     // TTS -------- start
     override fun onInit(status: Int) {
         if (status == TextToSpeech.SUCCESS) {
-            // TTS initialization successful
+            tts.voices.firstOrNull { it.name.contains(Regex("en-us-x-iom-local|en-us-x-iol-local|en-us-x-tpc-local")) }
+                ?.let { voice ->
+                    tts.voice = voice
+                }
             isTtsInitialized = true
         } else {
             // TTS initialization failed, handle the error if necessary
