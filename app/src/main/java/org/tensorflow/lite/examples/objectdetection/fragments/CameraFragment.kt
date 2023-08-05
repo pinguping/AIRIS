@@ -227,6 +227,17 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener, TextTo
 
         // Set up double tap gesture listener on camera preview view
         val gestureDetector = GestureDetector(requireContext(), object : GestureDetector.SimpleOnGestureListener() {
+            override fun onLongPress(e: MotionEvent?) {
+                // Toggle the sound option when the switch is long pressed
+                isSoundEnabled = !isSoundEnabled
+                // Perform your action here based on the isSoundEnabled state
+                if (isSoundEnabled) {
+                    playSirenSound()
+                } else {
+                    sirenMediaPlayer.stop()
+                    isSirenPlaying = false
+                }
+            }
             override fun onDoubleTap(e: MotionEvent): Boolean {
                 if (isTtsInitialized) {
                     // Toggle Text-to-Speech activation
