@@ -23,9 +23,6 @@ import android.graphics.Bitmap
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.PopupMenu
 import android.widget.Toast
@@ -47,6 +44,12 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 // TTS
 import android.speech.tts.TextToSpeech
+import android.view.*
+import com.google.android.gms.tasks.Task
+import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.text.Text
+import com.google.mlkit.vision.text.TextRecognition
+import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 
 
 class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener, TextToSpeech.OnInitListener {
@@ -69,6 +72,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener, TextTo
     private lateinit var tts: TextToSpeech
     private var isTtsInitialized = false
     private var isTextToSpeechActive = false
+    private var capturedText: String = ""
 
     /** Blocking camera operations are performed using this executor */
     private lateinit var cameraExecutor: ExecutorService
@@ -248,14 +252,11 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener, TextTo
 
     // TTS -------- start
     private fun readTextFromCamera() {
-        // Get the text captured by the camera preview (if available)
-        val capturedText = // Implement the logic to get the captured text from the camera preview
-
-            // Check if there is any text to read
-            if (capturedText.isNotBlank()) {
-                // Speak the captured text
-                tts.speak(capturedText, TextToSpeech.QUEUE_FLUSH, null, null)
-            }
+        // Check if there is any text to read
+        if (capturedText.isNotBlank()) {
+            // Speak the captured text
+            tts.speak(capturedText, TextToSpeech.QUEUE_FLUSH, null, null)
+        }
     }
     // TTS -------- end
 
@@ -445,6 +446,18 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener, TextTo
         val imageRotation = image.imageInfo.rotationDegrees
         // Pass Bitmap and rotation to the object detector helper for processing and detection
         objectDetectorHelper.detect(bitmapBuffer, imageRotation)
+    }
+
+    private fun recognizeText() {
+        val options: TextRecognizerOptions = TextRecognizerOptions.Builder().build()
+        val recognizer = TextRecognition.getClient(options)
+        val result: Task<Text> = recognizer.process(InputImage.fromBitmap(bitmapBuffer, 0))
+        result.addOnSuccessListener { text: Text ->
+            // Process the recognized text
+            capturedText = text.text
+        }.addOnFailureListener { e: Exception? ->
+            Log.e("ReadTextError", e.toString())
+        }
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
