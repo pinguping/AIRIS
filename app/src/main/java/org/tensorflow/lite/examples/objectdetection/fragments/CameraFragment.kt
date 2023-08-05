@@ -243,7 +243,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener, TextTo
             }
         })
 
-        fragmentCameraBinding.doubleTapView.setOnTouchListener { _, event ->
+        fragmentCameraBinding.volume.switch1.setOnTouchListener { _, event ->
             gestureDetector.onTouchEvent(event)
             true
         }
