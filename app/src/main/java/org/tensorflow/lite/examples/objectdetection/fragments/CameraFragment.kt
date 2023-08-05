@@ -24,6 +24,7 @@ import android.graphics.Bitmap
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
+import android.speech.tts.UtteranceProgressListener
 import android.util.Log
 import android.view.*
 import android.widget.AdapterView
@@ -72,6 +73,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener, TextTo
     private lateinit var tts: TextToSpeech
     private var isTtsInitialized = false
     private var isTextToSpeechActive = false
+    private var isPlayingTTS = false
     private var capturedText: String = ""
     private var isTtsPlayFailDueToTextEmpty = false
 
@@ -247,10 +249,27 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener, TextTo
                     isTextToSpeechActive = !isTextToSpeechActive
                     if (isTextToSpeechActive) {
                         // Start Text-to-Speech
+                        isPlayingTTS = true
+                        tts.speak("Switching to text reading mode.", TextToSpeech.QUEUE_FLUSH, null, null)
                         readTextFromCamera()
                     } else {
                         // Stop Text-to-Speech
                         tts.stop()
+                        tts.speak("Switching to object detection mode.", TextToSpeech.QUEUE_FLUSH, null, "switch")
+                        tts.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+                            override fun onStart(utteranceId: String) {}
+
+                            override fun onDone(utteranceId: String) {
+                                // TTS playback completed for the given utterance
+                                if (utteranceId == "switch") {
+                                    isPlayingTTS = false
+                                }
+                            }
+
+                            override fun onError(utteranceId: String) {
+                                isPlayingTTS = false
+                            }
+                        })
                     }
                 }
                 return super.onDoubleTap(e)
@@ -270,7 +289,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener, TextTo
         // Check if there is any text to read
         if (capturedText.isNotBlank()) {
             // Speak the captured text
-            tts.speak(capturedText, TextToSpeech.QUEUE_FLUSH, null, null)
+            tts.speak(capturedText, TextToSpeech.QUEUE_ADD, null, null)
         } else {
             isTtsPlayFailDueToTextEmpty = true
         }
@@ -460,7 +479,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener, TextTo
         // Copy out RGB bits to the shared bitmap buffer
         image.use { bitmapBuffer.copyPixelsFromBuffer(image.planes[0].buffer) }
         recognizeText()
-        if (isTextToSpeechActive) return
+        if (isPlayingTTS) return
         val imageRotation = image.imageInfo.rotationDegrees
         // Pass Bitmap and rotation to the object detector helper for processing and detection
         objectDetectorHelper.detect(bitmapBuffer, imageRotation)
