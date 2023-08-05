@@ -289,7 +289,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener, TextTo
         // Check if there is any text to read
         if (capturedText.isNotBlank()) {
             // Speak the captured text
-            tts.speak(capturedText, TextToSpeech.QUEUE_ADD, null, null)
+            tts.speak(capturedText, TextToSpeech.QUEUE_FLUSH, null, null)
         } else {
             isTtsPlayFailDueToTextEmpty = true
         }
