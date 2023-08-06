@@ -22,9 +22,11 @@ import android.Manifest
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.media.MediaPlayer
+import android.net.Uri
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
@@ -60,6 +62,7 @@ import android.telephony.SmsManager
 class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener, TextToSpeech.OnInitListener {
 
     private val TAG = "ObjectDetection"
+    val phoneNumber = "nil" // Replace with the actual phone number
 
     private var _fragmentCameraBinding: FragmentCameraBinding? = null
 
@@ -208,12 +211,12 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener, TextTo
 
             sirenMediaPlayer.start()
             isSirenPlaying = true
-
+        if(phoneNumber != "nil") {
             // Send the SMS when the siren starts playing (on long press)
-            sendSMS("94693722", "Help, I'm blind and in trouble")
+            sendSMS(phoneNumber, "Help, I'm blind and in trouble")
+        }
         }
     }
-
     private fun sendSMS(phoneNumber: String, message: String) {
         try {
             if (ContextCompat.checkSelfPermission(
@@ -239,6 +242,50 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener, TextTo
         } catch (e: Exception) {
             Log.e(TAG, "SMS sending failed: ${e.message}")
             Toast.makeText(requireContext(), "SMS sending failed", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun makePhoneCall() {
+        val callIntent = Intent(Intent.ACTION_CALL, Uri.parse("tel:$phoneNumber"))
+        startActivity(callIntent)
+    }
+
+    // Inside your class
+    private val PERMISSION_MAKE_CALL_REQUEST_CODE = 124 // You can use any value
+
+    // Inside your class, where you want to initiate the phone call
+    private fun initiatePhoneCall() {
+        if (ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.CALL_PHONE
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            // Permission already granted, make the phone call
+            makePhoneCall()
+        } else {
+            // Permission not granted, request it
+            ActivityCompat.requestPermissions(
+                requireActivity(),
+                arrayOf(Manifest.permission.CALL_PHONE),
+                PERMISSION_MAKE_CALL_REQUEST_CODE
+            )
+        }
+    }
+
+    // Handle permission result
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        if (requestCode == PERMISSION_MAKE_CALL_REQUEST_CODE) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted, make the phone call
+                makePhoneCall()
+            } else {
+                // Permission denied, show a message to the user
+                Toast.makeText(requireContext(), "Call permission denied", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 

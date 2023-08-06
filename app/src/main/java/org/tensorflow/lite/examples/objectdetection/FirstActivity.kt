@@ -1,7 +1,6 @@
 package org.tensorflow.lite.examples.objectdetection
 
-//import org.tensorflow.lite.examples.objectdetection.R
-
+import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -10,15 +9,19 @@ import androidx.appcompat.app.AppCompatActivity
 import android.widget.Button
 import android.media.MediaPlayer
 import android.os.Build
+import android.util.Log
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import org.tensorflow.lite.examples.objectdetection.MainActivity
 
 class FirstActivity : AppCompatActivity() {
+
     private lateinit var mediaPlayer: MediaPlayer
+    private lateinit var alertMediaPlayer: MediaPlayer // New MediaPlayer for the alert dialog
     private lateinit var sharedPreferences: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_first)
         val phoneNumber = ""
@@ -29,13 +32,18 @@ class FirstActivity : AppCompatActivity() {
             mediaPlayer.pause()
             mediaPlayer.seekTo(0)
         })
+        alertMediaPlayer = MediaPlayer.create(this, R.raw.alertdialog) // Replace "alertdialog" with the name of your alert dialog audio file in the res/raw folder
+        alertMediaPlayer.setOnCompletionListener(MediaPlayer.OnCompletionListener {
+            it // this is MediaPlayer type
+            alertMediaPlayer.pause()
+            alertMediaPlayer.seekTo(0)
+        })
         sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
         val emergencyContact = sharedPreferences.getString("emergencyContact", null)
 
         if (emergencyContact == null) {
             showEmergencyContactDialog()
         }
-
 
         // Get references to the buttons
         val btnNextPage: Button = findViewById(R.id.btnNextPage)
@@ -65,21 +73,36 @@ class FirstActivity : AppCompatActivity() {
             startActivity(intent)
         }
     }
-    private fun showEmergencyContactDialog() {
-        val editText = EditText(this)
-        val dialog = AlertDialog.Builder(this)
-            .setTitle("Set Emergency Contact")
-            .setMessage("Please enter an emergency contact number:")
-            .setView(editText)
-            .setCancelable(false)
-            .setPositiveButton("Save") { _, _ ->
-                val contactNumber = editText.text.toString()
-                if (contactNumber.isNotEmpty()) {
-                    saveEmergencyContact(contactNumber)
-                }
-            }
-            .create()
 
+    private fun showEmergencyContactDialog() {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Emergency Contact")
+        builder.setMessage("Please enter your emergency contact number:")
+        val input = EditText(this)
+        builder.setView(input)
+
+        builder.setPositiveButton("Save") { dialog, which ->
+            val contactNumber = input.text.toString()
+            if (contactNumber.isNotEmpty()) {
+                // Save the contact number to SharedPreferences
+                saveEmergencyContact(contactNumber)
+            }
+            // Play the alert dialog sound
+            if (!alertMediaPlayer.isPlaying) {
+                alertMediaPlayer.start()
+            }
+        }
+
+        builder.setNegativeButton("Close") { dialog, which ->
+            val editor = sharedPreferences.edit()
+            editor.putString("emergencyContact", "nil")
+            editor.apply()
+            // ...
+        }
+
+        builder.setCancelable(false) // This prevents the dialog from being cancelled by tapping outside
+
+        val dialog = builder.create()
         dialog.show()
     }
 
@@ -89,7 +112,9 @@ class FirstActivity : AppCompatActivity() {
         editor.apply()
     }
 
-    override fun onResume() {
+
+
+override fun onResume() {
         super.onResume()
         // Resume audio playback when the activity is resumed
         mediaPlayer.start()
