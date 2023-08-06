@@ -2,6 +2,7 @@ package org.tensorflow.lite.examples.objectdetection
 
 //import org.tensorflow.lite.examples.objectdetection.R
 
+import org.tensorflow.lite.examples.objectdetection.MapsActivity
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
