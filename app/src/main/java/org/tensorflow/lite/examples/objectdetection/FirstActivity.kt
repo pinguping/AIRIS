@@ -1,12 +1,14 @@
 package org.tensorflow.lite.examples.objectdetection
 
+//import org.tensorflow.lite.examples.objectdetection.R
+
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import android.widget.Button
 import android.media.MediaPlayer
 import android.os.Build
-import org.tensorflow.lite.examples.objectdetection.MapsActivity
+import org.tensorflow.lite.examples.objectdetection.MainActivity
 
 class FirstActivity : AppCompatActivity() {
     private lateinit var mediaPlayer: MediaPlayer

@@ -7,11 +7,21 @@
     <!-- Enable instant app support -->
     <dist:module dist:instant="true" />
 
+    <!-- MAPS -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
     <!-- Declare features -->
     <uses-feature android:name="android.hardware.camera" />
+    <uses-feature
+        android:name="android.hardware.telephony"
+        android:required="false" />
 
     <!-- Declare permissions -->
     <uses-permission android:name="android.permission.CAMERA" />
+
+    <!-- send SMS -->
+    <uses-permission android:name="android.permission.SEND_SMS" />
 
     <application
         android:allowBackup="true"
@@ -45,8 +55,9 @@
             android:label="Maps Activity"
             android:theme="@style/AppTheme" />
 
+        <!-- MAPS -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="@string/maps_API" />
+            android:value="AIzaSyBelJa2AUe2d03PRRENsQLBBNVAg7PpPJw" />
     </application>
 </manifest>

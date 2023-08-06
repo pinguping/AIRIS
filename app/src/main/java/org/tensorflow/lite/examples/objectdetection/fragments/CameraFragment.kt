@@ -18,6 +18,9 @@ package org.tensorflow.lite.examples.objectdetection.fragments
 //import org.tensorflow.lite.examples.objectdetection.BuildConfig
 
 // TTS
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.core.app.ActivityCompat
 import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.graphics.Bitmap
@@ -51,6 +54,7 @@ import java.io.InputStreamReader
 import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import android.telephony.SmsManager
 
 
 class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener, TextToSpeech.OnInitListener {
@@ -204,7 +208,42 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener, TextTo
 
             sirenMediaPlayer.start()
             isSirenPlaying = true
+
+            // Send the SMS when the siren starts playing (on long press)
+            sendSMS("94693722", "Help, I'm blind and in trouble")
         }
+    }
+
+    private fun sendSMS(phoneNumber: String, message: String) {
+        try {
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.SEND_SMS
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                val smsManager: SmsManager = SmsManager.getDefault()
+                smsManager.sendTextMessage(phoneNumber, null, message, null, null)
+                Toast.makeText(
+                    requireContext(),
+                    "SMS sent successfully to $phoneNumber",
+                    Toast.LENGTH_SHORT
+                ).show()
+            } else {
+                // Request the SMS permission at runtime
+                ActivityCompat.requestPermissions(
+                    requireActivity(),
+                    arrayOf(Manifest.permission.SEND_SMS),
+                    PERMISSION_SEND_SMS_REQUEST_CODE
+                )
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "SMS sending failed: ${e.message}")
+            Toast.makeText(requireContext(), "SMS sending failed", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    companion object {
+        private const val PERMISSION_SEND_SMS_REQUEST_CODE = 123 // Choose any value you prefer
     }
 
     @SuppressLint("MissingPermission")

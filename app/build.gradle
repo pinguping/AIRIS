@@ -129,5 +129,11 @@ dependencies {
     //TTS
 //    implementation 'com.google.android.tts:google-tts:1.1.0'
     implementation 'com.google.android.gms:play-services-mlkit-text-recognition:19.0.0'
+    implementation "androidx.core:core-ktx:1.6.0"
+
+    // MAPS
+    implementation 'com.google.android.gms:play-services-maps:17.0.0'
+    implementation 'com.google.android.gms:play-services-location:17.0.0'
+
 
 }
