@@ -57,12 +57,17 @@ import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import android.telephony.SmsManager
+import android.preference.PreferenceManager
+
 
 
 class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener, TextToSpeech.OnInitListener {
 
     private val TAG = "ObjectDetection"
     val phoneNumber = "nil" // Replace with the actual phone number
+
+    // WELCOME MESSAGE
+    private var isWelcomeMessageRead = false
 
     private var _fragmentCameraBinding: FragmentCameraBinding? = null
 
@@ -139,6 +144,8 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener, TextTo
         // TTS ------- end
     }
 
+    private var isWelcomeMessagePlayed = false
+
     override fun onCreateView(
       inflater: LayoutInflater,
       container: ViewGroup?,
@@ -186,7 +193,8 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener, TextTo
             popupMenu.inflate(R.menu.lang_menu)
             popupMenu.show()
         }
-
+        // TTS initialization moved here
+        tts = TextToSpeech(requireContext(), this)
         return fragmentCameraBinding.root
     }
 
@@ -308,13 +316,23 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener, TextTo
         fragmentCameraBinding.viewFinder.post {
             // Set up the camera and its use cases
             setUpCamera()
+
+            // Check if the welcome message has been played before
+            if (!isWelcomeMessagePlayed && isTtsInitialized) {
+                // Play the welcome message using Text-to-Speech
+                tts.speak(getString(R.string.welcome_message_maps), TextToSpeech.QUEUE_FLUSH, null, "welcome")
+                isPlayingTTS = true
+                isWelcomeMessagePlayed = true
+            }
         }
 
         // Attach listeners to UI control widgets
         initBottomSheetControls()
 
-        // TTS ----------- Initialize Text-to-Speech
-        tts = TextToSpeech(requireContext(), this)
+        // Check if the welcome message has been read before
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        isWelcomeMessageRead = sharedPreferences.getBoolean("WELCOME_MESSAGE_READ", false)
+
 
         // Set up double tap gesture listener on camera preview view
         val gestureDetector = GestureDetector(requireContext(), object : GestureDetector.SimpleOnGestureListener() {
@@ -349,6 +367,11 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener, TextTo
                                 // TTS playback completed for the given utterance
                                 if (utteranceId == "switch") {
                                     isPlayingTTS = false
+                                    // Mark the welcome message as read
+                                    val isWelcomeMessageRead = true
+                                    // Save the flag to SharedPreferences
+                                    val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
+                                    sharedPreferences.edit().putBoolean("WELCOME_MESSAGE_READ", true).apply()
                                 }
                             }
 
@@ -586,7 +609,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener, TextTo
             Log.e("ReadTextError", e.toString())
         }
     }
-
+// HELLO
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         imageAnalyzer?.targetRotation = fragmentCameraBinding.viewFinder.display.rotation

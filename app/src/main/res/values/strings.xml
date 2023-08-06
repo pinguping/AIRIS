@@ -17,8 +17,8 @@
     <string name="app_name">AIRIS</string>
 
     // welcome messages
-    <string name="welcome_message">Welcome to the Maps page. Long press for 3 seconds to get the nearest train station to you!</string>
-
+    <string name="welcome_message">Discover Your Route, Long press for 3 seconds to find the nearest train station to you!</string>
+    <string name="welcome_message_maps">See and Hear, Real-time Object Detection with Text-to-Speech. Double tap to switch between modes.</string>
 
     <string name="maps_API">AIzaSyBelJa2AUe2d03PRRENsQLBBNVAg7PpPJw</string>
 
