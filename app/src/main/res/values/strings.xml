@@ -16,6 +16,10 @@
 <resources>
     <string name="app_name">AIRIS</string>
 
+    // welcome messages
+    <string name="welcome_message">Welcome to the Maps page. Long press for 3 seconds to get the nearest train station to you!</string>
+
+
     <string name="maps_API">AIzaSyBelJa2AUe2d03PRRENsQLBBNVAg7PpPJw</string>
 
     <string name="alt_bottom_sheet_chevron">Bottom sheet expandable indicator</string>

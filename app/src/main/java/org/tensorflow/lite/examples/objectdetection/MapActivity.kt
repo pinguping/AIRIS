@@ -220,6 +220,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         // Add more stations here...
     )
 
+    private fun speakWelcomeMessage() {
+        val welcomeMessage = getString(R.string.welcome_message)
+        textToSpeech.speak(welcomeMessage, TextToSpeech.QUEUE_FLUSH, null, null)
+    }
+
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1
         private const val LONG_PRESS_TIMEOUT = 3000L // 3 seconds
@@ -239,6 +244,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 val result = textToSpeech.setLanguage(Locale.US)
                 if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
                     // Handle the case when the language is not supported or missing data
+                } else {
+                    speakWelcomeMessage()
                 }
             } else {
                 // Handle the case when TextToSpeech initialization fails
