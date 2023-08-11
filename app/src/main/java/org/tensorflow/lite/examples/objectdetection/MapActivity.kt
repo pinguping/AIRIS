@@ -34,8 +34,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     // Replace this list with all the MRT/LRT stations and their coordinates
     private val stations = listOf(
-        Station("Woodlands North", 1.403618, 103.825883),
-        Station("Woodlands", 1.404184, 103.826071),
+        Station("Woodlands North", 1.44827, 103.785564),
+        Station("Woodlands", 1.4369, 103.7865),
         Station("Tampines West", 1.325249, 103.873865),
         Station("Tampines East", 1.326507, 103.875191),
         Station("Upper Changi", 1.329352, 103.876117),
@@ -47,7 +47,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         Station("Kent Ridge", 1.237273, 103.866943),
         Station("one-north", 1.233616, 103.868188),
         Station("Holland Village", 1.229959, 103.869433),
-        Station("Farrer Road", 1.226302, 103.870678),
+        Station("Farrer Road", 1.3176, 103.8075),
         Station("Marymount", 1.303407, 103.860657),
         Station("Lorong Chuan", 1.301233, 103.861823),
         Station("Serangoon", 1.305657, 103.863068),
@@ -106,7 +106,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         Station("Petir", 1.203703, 103.928398),
         Station("Woodlands North", 1.403618, 103.825883),
         Station("Woodlands", 1.404184, 103.826071),
-        Station("Woodlands South", 1.404750, 103.826259),
+        Station("Woodlands South", 1.380305, 103.849051),
         Station("Springleaf", 1.359237, 103.827343),
         Station("Lentor", 1.359803, 103.827531),
         Station("Mayflower", 1.360369, 103.827719),
@@ -142,7 +142,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         Station("Gul Circle", 1.299109, 103.876539),
         Station("Joo Koon", 1.293916, 103.879692),
         Station("Pioneer", 1.289991, 103.882038),
-        Station("Boon Lay", 1.285879, 103.884598),
+        Station("Boon Lay", 1.3384, 103.7059),
         Station("Lakeside", 1.281325, 103.887567),
         Station("Chinese Gardens", 1.279113, 103.888954),
         Station("Jurong East", 1.277306, 103.890195),

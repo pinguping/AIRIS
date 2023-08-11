@@ -18,6 +18,8 @@ package org.tensorflow.lite.examples.objectdetection.fragments
 //import org.tensorflow.lite.examples.objectdetection.BuildConfig
 
 // TTS
+import android.content.Context
+import android.location.LocationManager
 import android.Manifest
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
@@ -58,6 +60,8 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import android.telephony.SmsManager
 import android.preference.PreferenceManager
+import android.location.Address
+import android.location.Geocoder
 
 
 
@@ -157,7 +161,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener, TextTo
             isSoundEnabled = !isSoundEnabled
             // Perform your action here based on the isSoundEnabled state
             if (isSoundEnabled) {
-                playSirenSound()
+                playSirenSoundAndSendSMS()
             }
             // Return true to indicate that the long press event is consumed
             true
@@ -200,7 +204,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener, TextTo
 
 
     // Function to play the siren sound
-    private fun playSirenSound() {
+    private fun playSirenSoundAndSendSMS() {
         if (!isSirenPlaying) {
             // Check if the MediaPlayer is already initialized and not playing
             if (!this::sirenMediaPlayer.isInitialized) {
@@ -219,10 +223,11 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener, TextTo
 
             sirenMediaPlayer.start()
             isSirenPlaying = true
-        if(phoneNumber != "nil") {
+
             // Send the SMS when the siren starts playing (on long press)
-            sendSMS(phoneNumber, "Help, I'm blind and in trouble")
-        }
+            val phoneNumber = "94693722" // Replace with the actual phone number (71999)
+            val message = "Emergency: Please come to my location immediately."
+            sendSMS(phoneNumber, message)
         }
     }
     private fun sendSMS(phoneNumber: String, message: String) {
@@ -233,7 +238,21 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener, TextTo
                 ) == PackageManager.PERMISSION_GRANTED
             ) {
                 val smsManager: SmsManager = SmsManager.getDefault()
-                smsManager.sendTextMessage(phoneNumber, null, message, null, null)
+
+                // Get the current location using LocationManager
+                val locationManager = requireContext().getSystemService(Context.LOCATION_SERVICE) as LocationManager
+                val location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+
+                // Convert latitude and longitude to address
+                val geocoder = Geocoder(requireContext(), Locale.getDefault())
+                val addresses: List<Address>? = location?.let {
+                    geocoder.getFromLocation(it.latitude, it.longitude, 1)
+                }
+
+                val locationText = addresses?.firstOrNull()?.getAddressLine(0) ?: "Unknown location"
+                val finalMessage = "$message My Current location: $locationText"
+
+                smsManager.sendTextMessage(phoneNumber, null, finalMessage, null, null)
                 Toast.makeText(
                     requireContext(),
                     "SMS sent successfully to $phoneNumber",
@@ -341,7 +360,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener, TextTo
                 isSoundEnabled = !isSoundEnabled
                 // Perform your action here based on the isSoundEnabled state
                 if (isSoundEnabled) {
-                    playSirenSound()
+                    playSirenSoundAndSendSMS()
                 } else {
                     sirenMediaPlayer.stop()
                     isSirenPlaying = false
@@ -498,7 +517,7 @@ class CameraFragment : Fragment(), ObjectDetectorHelper.DetectorListener, TextTo
             isSoundEnabled = !isSoundEnabled
             // Perform your action here based on the isSoundEnabled state
             if (isSoundEnabled) {
-                playSirenSound()
+                playSirenSoundAndSendSMS()
             }
             // Return true to indicate that the long press event is consumed
             true
